@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Archivos de prueba y datos
+test_map-diatech-auto/
+alec-gabmap-diatech-auto/
+alec-diatech/
+alec-gabmap/
+test_map/
+nafartest/
+*.zip
+
+# Informes y análisis (opcional - puedes incluirlos si quieres)
+# ANALISIS_COMPARATIVO_ALEC.md
+# INFORME_ESTRUCTURA_ALEC_*.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Archivos temporales
+*.tmp
+*.log
+
