@@ -24,8 +24,6 @@ Convierte tus archivos entre formato **Gabmap** (`.txt` + `.kml`) y formato **Di
 """)
 
 # Inicializar estado de sesión
-if 'conversion_done' not in st.session_state:
-    st.session_state.conversion_done = False
 if 'conversion_direction' not in st.session_state:
     st.session_state.conversion_direction = 'gabmap_to_diatech'
 
@@ -39,9 +37,25 @@ conversion_direction = st.radio(
         'gabmap_to_diatech': '🔄 Gabmap → Diatech',
         'diatech_to_gabmap': '🔄 Diatech → Gabmap'
     }[x],
-    horizontal=True
+    horizontal=True,
+    key='direction_selector'
 )
 
+# Limpiar estado de conversión anterior si cambió la dirección
+if st.session_state.conversion_direction != conversion_direction:
+    # Limpiar todos los estados relacionados con la conversión anterior
+    if 'conversion_done' in st.session_state:
+        del st.session_state.conversion_done
+    if 'zip_data' in st.session_state:
+        del st.session_state.zip_data
+    if 'stats' in st.session_state:
+        del st.session_state.stats
+    if 'output_files' in st.session_state:
+        del st.session_state.output_files
+    if 'zip_filename' in st.session_state:
+        del st.session_state.zip_filename
+
+# Actualizar dirección actual
 st.session_state.conversion_direction = conversion_direction
 
 # Sección de carga de archivos según la dirección
@@ -262,8 +276,9 @@ else:  # diatech_to_gabmap
                     st.exception(e)
                     st.session_state.conversion_done = False
 
-# Mostrar resultados si la conversión fue exitosa
-if st.session_state.get('conversion_done', False):
+# Mostrar resultados si la conversión fue exitosa y la dirección coincide
+if (st.session_state.get('conversion_done', False) and 
+    st.session_state.get('conversion_direction') == conversion_direction):
     st.header("📊 Resultados")
     
     # Estadísticas
