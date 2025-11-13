@@ -220,8 +220,16 @@ def extract_country_boundaries_bytes(kml_bytes, kml_filename):
         
         if coords_elem is not None and coords_elem.text:
             coords_str = coords_elem.text.strip()
-            # Las coordenadas están separadas por espacios
-            coord_pairs = coords_str.split()
+            # Las coordenadas están separadas por espacios o saltos de línea
+            # Normalizar: reemplazar saltos de línea y tabs con espacios, luego dividir
+            coords_str = coords_str.replace('\n', ' ').replace('\r', ' ').replace('\t', ' ')
+            # Dividir por espacios y filtrar vacíos (manejar múltiples espacios)
+            # Dividir por uno o más espacios
+            coord_pairs = re.split(r'\s+', coords_str)
+            coord_pairs = [c.strip() for c in coord_pairs if c.strip()]
+            
+            if not coord_pairs:
+                return None
             
             output = io.BytesIO()
             # Escribir manualmente para controlar formato exacto
@@ -230,10 +238,22 @@ def extract_country_boundaries_bytes(kml_bytes, kml_filename):
                 if len(parts) >= 2:
                     lon = parts[0].strip()
                     lat = parts[1].strip()
-                    # Formato: "longitud";"latitud" (usar CRLF como en archivos nativos)
-                    output.write(f'"{lon}";"{lat}"\r\n'.encode('utf-8'))
+                    # Validar que sean números válidos
+                    try:
+                        float(lon)
+                        float(lat)
+                        # Formato: "longitud";"latitud" (usar CRLF como en archivos nativos)
+                        output.write(f'"{lon}";"{lat}"\r\n'.encode('utf-8'))
+                    except ValueError:
+                        # Si no es un número válido, saltar esta coordenada
+                        continue
             
-            return output.getvalue()
+            # Verificar que se escribió algo
+            result = output.getvalue()
+            if len(result) > 0:
+                return result
+            else:
+                return None
     
     return None
 
